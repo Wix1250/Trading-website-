@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICT Trading Learning Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #b8b8c8;
+            font-size: 1.1em;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mode-btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .mode-btn:hover:before {
+            left: 100%;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .content-area {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .content-area.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chart-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 0.9em;
+            color: #b8b8c8;
+        }
+
+        select, button {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover, button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .chart-placeholder {
+            background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 100%);
+            border-radius: 15px;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-mock {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .candle {
+            position: absolute;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(to bottom, #00ff88, #00cc66);
+            opacity: 0.8;
+            animation: grow 2s ease-out infinite;
+        }
+
+        @keyframes grow {
+            0%, 100% { height: 40%; }
+            50% { height: 60%; }
+        }
+
+        .analysis-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .confluence-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .confluence-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .confluence-item:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            height: 400px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, rgba(118, 75, 162, 0.1) 0%, rgba(102, 126, 234, 0.1) 100%);
+        }
+
+        .card-content h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card-content p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .flashcard-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: #b8b8c8;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .chart-placeholder {
+                height: 300px;
+            }
+            
+            .flashcard-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ICT Trading Learning Platform</h1>
+            <p>Master Inner Circle Trading with AI-Powered Education</p>
+        </div>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="switchMode('chart')">
+                📊 Real Chart Analysis
+            </button>
+            <button class="mode-btn" onclick="switchMode('flashcards')">
+                🎯 ICT Flashcards
+            </button>
+            <button class="mode-btn" onclick="switchMode('progress')">
+                📈 Learning Progress
+            </button>
+        </div>
+
+        <!-- Chart Analysis Mode -->
+        <div id="chart-mode" class="content-area active">
+            <div class="chart-section">
+                <div class="chart-controls">
+                    <div class="control-group">
+                        <label>Symbol</label>
+                        <select id="symbol">
+                            <option value="NQ">NQ (Nasdaq Futures)</option>
+                            <option value="ES">ES (S&P 500 Futures)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Timeframe</label>
+                        <select id="timeframe">
+                            <option value="1m">1 Minute</option>
+                            <option value="5m">5 Minutes</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Session</label>
+                        <select id="session">
+                            <option value="ny">New York (9:30-12:00 ET)</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary" onclick="loadHistoricalData()">
+                        Load Historical Session
+                    </button>
+                </div>
+
+                <div class="chart-placeholder">
+                    <div class="chart-mock">
+                        <div class="candle" style="left: 10%; height: 45%; animation-delay: 0s;"></div>
+                        <div class="candle" style="left: 15%; height: 55%; animation-delay: 0.1s; background: linear-gradient(to bottom, #ff4444, #cc0000);"></div>
+                        <div class="candle" style="left: 20%; height: 50%; animation-delay: 0.2s;"></div>
+                        <div class="candle" style="left: 25%; height: 60%; animation-delay: 0.3s;"></div>
+                        <div class="candle" style="left: 30%; height: 40%; animation-delay: 0.4s; background: linear-gradient(to bottom, #ff4444, #cc0000);"></div>
+                        <div class="candle" style="left: 35%; height: 45%; animation-delay: 0.5s;"></div>
+                        <div class="candle" style="left: 40%; height: 65%; animation-delay: 0.6s;"></div>
+                        <div class="candle" style="left: 45%; height: 55%; animation-delay: 0.7s;"></div>
+                        <div class="candle" style="left: 50%; height: 50%; animation-delay: 0.8s; background: linear-gradient(to bottom, #ff4444, #cc0000);"></div>
+                        <div class="candle" style="left: 55%; height: 58%; animation-delay: 0.9s;"></div>
+                        <div class="candle" style="left: 60%; height: 62%; animation-delay: 1s;"></div>
+                        <div class="candle" style="left: 65%; height: 48%; animation-delay: 1.1s; background: linear-gradient(to bottom, #ff4444, #cc0000);"></div>
+                        <div class="candle" style="left: 70%; height: 52%; animation-delay: 1.2s;"></div>
+                        <div class="candle" style="left: 75%; height: 58%; animation-delay: 1.3s;"></div>
+                        <div class="candle" style="left: 80%; height: 64%; animation-delay: 1.4s;"></div>
+                        <div class="candle" style="left: 85%; height: 70%; animation-delay: 1.5s;"></div>
+                        <div class="candle" style="left: 90%; height: 66%; animation-delay: 1.6s; background: linear-gradient(to bottom, #ff4444, #cc0000);"></div>
+                    </div>
+                </div>
+
+                <div class="analysis-panel">
+                    <h3>🎯 Identify ICT Confluences</h3>
+                    <p style="color: #b8b8c8; margin-top: 10px;">Click on the chart to mark potential trading confluences</p>
+                    
+                    <div class="confluence-list">
+                        <div class="confluence-item">
+                            <strong>Order Block</strong>
+                            <p style="font-size: 0.9em; color: #b8b8c8; margin-top: 5px;">Last bullish candle before move down</p>
+                        </div>
+                        <div class="confluence-item">
+                            <strong>Fair Value Gap</strong>
+                            <p style="font-size: 0.9em; color: #b8b8c8; margin-top: 5px;">Imbalance between candles</p>
+                        </div>
+                        <div class="confluence-item">
+                            <strong>Liquidity Grab</strong>
+                            <p style="font-size: 0.9em; color: #b8b8c8; margin-top: 5px;">Stop hunt above/below key level</p>
+                        </div>
+                        <div class="confluence-item">
+                            <strong>Market Structure</strong>
+                            <p style="font-size: 0.9em; color: #b8b8c8; margin-top: 5px;">Break of structure point</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flashcards Mode -->
+        <div id="flashcards-mode" class="content-area">
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="card-content">
+                            <h3>What is a Fair Value Gap (FVG)?</h3>
+                            <p style="margin-top: 20px; color: #b8b8c8;">Click to reveal answer</p>
+                        </div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-content">
+                            <h3>Fair Value Gap</h3>
+                            <p>An imbalance or inefficiency in price delivery where the market moves so fast that it leaves a gap between the wicks of candles. This creates a zone where price is likely to return to "fill" the gap and restore balance.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard-controls">
+                <button class="btn-primary" onclick="previousCard()">← Previous</button>
+                <button class="btn-primary" onclick="markCorrect()">✓ Got It</button>
+                <button class="btn-primary" onclick="markIncorrect()">✗ Review Later</button>
+                <button class="btn-primary" onclick="nextCard()">Next →</button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 25%"></div>
+            </div>
+        </div>
+
+        <!-- Progress Mode -->
+        <div id="progress-mode" class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">87%</div>
+                    <div class="stat-label">Concept Mastery</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">342</div>
+                    <div class="stat-label">Charts Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">156</div>
+                    <div class="stat-label">Flashcards Reviewed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Day Streak</div>
+                </div>
+            </div>
+
+            <div class="chart-section" style="margin-top: 30px;">
+                <h3>📊 Learning Journey</h3>
+                <div class="progress-bar" style="margin: 20px 0;">
+                    <div class="progress-fill" style="width: 75%"></div>
+                </div>
+                <p style="color: #b8b8c8;">You're 75% through the ICT Fundamentals module</p>
+                
+                <div style="margin-top: 30px;">
+                    <h4 style="margin-bottom: 15px;">Mastered Concepts:</h4>
+                    <div class="confluence-list">
+                        <div class="confluence-item">
+                            <strong>✓ Market Structure</strong>
+                        </div>
+                        <div class="confluence-item">
+                            <strong>✓ Order Blocks</strong>
+                        </div>
+                        <div class="confluence-item">
+                            <strong>✓ Liquidity Concepts</strong>
+                        </div>
+                        <div class="confluence-item">
+                            <strong>⏳ Fair Value Gaps</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store flashcard data
+        const flashcards = [
+            {
+                question: "What is a Fair Value Gap (FVG)?",
+                answer: "An imbalance or inefficiency in price delivery where the market moves so fast that it leaves a gap between the wicks of candles. This creates a zone where price is likely to return to 'fill' the gap and restore balance."
+            },
+            {
+                question: "Define an Order Block",
+                answer: "The last opposing candle before a strong move in price. A bullish order block is the last down candle before a move up, and a bearish order block is the last up candle before a move down. These areas often act as support/resistance."
+            },
+            {
+                question: "What is a Liquidity Grab?",
+                answer: "A move in price designed to trigger stop losses above recent highs or below recent lows. Smart money hunts these liquidity pools before reversing price in the intended direction."
+            },
+            {
+                question: "Explain Market Structure Break",
+                answer: "When price breaks above a previous high (bullish) or below a previous low (bearish), indicating a potential change in trend direction. ICT traders look for these breaks to confirm bias."
+            }
+        ];
+
+        let currentCardIndex = 0;
+        let isFlipped = false;
+
+        function switchMode(mode) {
+            // Hide all content areas
+            document.querySelectorAll('.content-area').forEach(area => {
+                area.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected content area
+            document.getElementById(mode + '-mode').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        function flipCard() {
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcards.length;
+            updateCard();
+            updateProgress();
+        }
+
+        function previousCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcards.length) % flashcards.length;
+            updateCard();
+            updateProgress();
+        }
+
+        function updateCard() {
+            const flashcard = document.getElementById('flashcard');
+            const currentCard = flashcards[currentCardIndex];
+            
+            // Reset flip state
+            if (isFlipped) {
+                flashcard.classList.remove('flipped');
+                isFlipped = false;
+            }
+            
+            // Update content after animation
+            setTimeout(() => {
+                flashcard.querySelector('.card-front h3').textContent = currentCard.question;
+                flashcard.querySelector('.card-back p').textContent = currentCard.answer;
+            }, 300);
+        }
+
+        function updateProgress() {
+            const progress = ((currentCardIndex + 1) / flashcards.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function markCorrect() {
+            // In a real app, this would update spaced repetition algorithm
+            console.log('Marked as correct');
+            nextCard();
+        }
+
+        function markIncorrect() {
+            // In a real app, this would schedule for more frequent review
+            console.log('Marked for review');
+            nextCard();
+        }
+
+        function loadHistoricalData() {
+            // In a real app, this would load actual historical data
+            alert('Loading historical session data...\n\nThis would connect to TradingView API to load real 1-minute chart data from a previous NY session for analysis.');
+        }
+
+        // Add some interactivity to confluence items
+        document.querySelectorAll('.confluence-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.borderLeftColor = '#00ff88';
+                setTimeout(() => {
+                    this.style.borderLeftColor = '#667eea';
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
